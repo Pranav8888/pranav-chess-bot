@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play vs Pranav</title>
     <!-- Chessboard.js & Dependencies -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
@@ -20,41 +21,54 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 12px;
             user-select: none;
             -webkit-user-select: none;
         }
     
         .app-container {
             display: flex;
-            gap: 32px;
+            gap: 24px;
             align-items: flex-start;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+        }
+
+        /* Mobile Layout Stack */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 16px;
+            }
         }
     
-        /* Board Column */
+        /* Board Column - Dynamic sizing for mobile */
         .board-column {
             display: flex;
             flex-direction: column;
-            width: 720px;
+            width: 100%;
+            max-width: 650px;
         }
     
         .player-bar {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 12px 0;
+            gap: 12px;
+            padding: 8px 0;
         }
     
         .bar-avatar {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             background: transparent;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 24px;
+            font-size: 20px;
             color: #e6f0fa;
         }
     
@@ -68,31 +82,31 @@
         .player-name {
             color: #e6f0fa;
             font-weight: 700;
-            font-size: 22px;
+            font-size: 18px;
         }
     
         .player-rating {
             color: #647d9a;
-            font-size: 18px;
+            font-size: 16px;
             margin-left: 6px;
         }
     
-        /* Board Wrapper & Overlay for SVG Drawings */
+        /* Board Wrapper & Responsive Square Ratio */
         .board-wrapper {
             position: relative;
-            width: 720px;
-            height: 720px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            touch-action: manipulation;
         }
     
         #board {
-            width: 720px;
-            height: 720px;
+            width: 100%;
+            height: 100%;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
             border-radius: 4px;
             overflow: hidden;
         }
     
-        /* Prevent default browser dragging on piece images */
         #board img {
             -webkit-user-drag: none;
             -khtml-user-drag: none;
@@ -104,13 +118,13 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 720px;
-            height: 720px;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 100;
         }
     
-        /* Board Square Colors - Desaturated Blue */
+        /* Square Styling & Highlighting */
         .white-1e1d7 {
             background-color: #d8e2ec !important;
             color: #3ea1b9 !important;
@@ -120,10 +134,14 @@
             color: #d8e2ec !important;
         }
     
-        /* High-Specificity Highlights Override */
         #board .square-55d63.highlight-last-move {
             background-color: rgb(192, 192, 192) !important;
             box-shadow: inset 0 0 2px 2px rgba(172, 172, 172);
+        }
+
+        #board .square-55d63.highlight-selected {
+            background-color: rgba(255, 235, 59, 0.65) !important;
+            box-shadow: inset 0 0 2px 2px rgba(212, 190, 0, 0.8);
         }
     
         #board .square-55d63.highlight-right-click {
@@ -137,8 +155,9 @@
     
         /* Right Sidebar Panel */
         .side-panel {
-            width: 440px;
-            height: 820px;
+            width: 100%;
+            max-width: 650px;
+            min-height: 400px;
             background-color: #1a2230;
             border-radius: 8px;
             display: flex;
@@ -147,49 +166,54 @@
             box-shadow: 0 12px 32px rgba(0,0,0,0.6);
             border: 1px solid #283346;
         }
+
+        @media (min-width: 901px) {
+            .side-panel {
+                width: 380px;
+                height: 720px;
+            }
+        }
     
         .panel-header {
-            padding: 18px 20px;
+            padding: 14px 18px;
             background-color: #131924;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             font-weight: 600;
             color: #e6f0fa;
-            font-size: 18px;
+            font-size: 16px;
             border-bottom: 1px solid #253144;
         }
     
         .bot-dialogue-area {
-            padding: 20px;
+            padding: 14px;
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: flex-start;
             background-color: #212c3d;
-            margin: 20px;
+            margin: 14px;
             border-radius: 8px;
             border: 1px solid #2d3b52;
         }
     
         .bot-panel-avatar {
-            width: 72px;
-            height: 72px;
+            width: 56px;
+            height: 56px;
             flex-shrink: 0;
-            background: transparent;
         }
     
         .bot-panel-avatar img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain;
-            background: transparent;
         }
     
         .speech-bubble {
             background-color: #f0f5fa;
             color: #121721;
-            padding: 14px 16px;
+            padding: 10px 12px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
             line-height: 1.4;
             position: relative;
@@ -201,7 +225,7 @@
             content: '';
             position: absolute;
             left: -8px;
-            top: 20px;
+            top: 16px;
             width: 0;
             height: 0;
             border-top: 6px solid transparent;
@@ -211,16 +235,17 @@
     
         .move-history-area {
             flex-grow: 1;
-            padding: 18px;
-            font-size: 16px;
+            min-height: 120px;
+            padding: 14px;
+            font-size: 14px;
             color: #c0d1e5;
             font-family: monospace;
             overflow-y: auto;
             background-color: #131924;
-            margin: 0 20px 20px 20px;
+            margin: 0 14px 14px 14px;
             border-radius: 6px;
             border: 1px solid #253144;
-            line-height: 1.7;
+            line-height: 1.6;
         }
     
         .move-line {
@@ -238,68 +263,47 @@
         }
     
         .panel-footer {
-            padding: 20px;
+            padding: 14px;
             background-color: #131924;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             border-top: 1px solid #253144;
         }
     
-        .action-row {
+        .action-row, .color-btns {
             display: flex;
             gap: 10px;
         }
     
-        .btn-resign, .btn-pgn {
+        .btn-resign, .btn-pgn, .btn-start {
             flex: 1;
-            background-color: #232d3f;
-            border: 1px solid #324158;
-            padding: 12px;
+            padding: 10px;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             border-radius: 6px;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
+            border: 1px solid #324158;
         }
     
-        .btn-resign { color: #e55353; }
-        .btn-resign:hover { 
-            background-color: #cc3333; 
-            color: #ffffff;
-            border-color: #cc3333;
-        }
+        .btn-resign { background-color: #232d3f; color: #e55353; }
+        .btn-resign:hover { background-color: #cc3333; color: #ffffff; border-color: #cc3333; }
     
-        .btn-pgn { color: #9cb1c9; }
-        .btn-pgn:hover {
-            background-color: #324158;
-            color: #ffffff;
-        }
-    
-        .color-btns {
-            display: flex;
-            gap: 10px;
-        }
+        .btn-pgn { background-color: #232d3f; color: #9cb1c9; }
+        .btn-pgn:hover { background-color: #324158; color: #ffffff; }
     
         .btn-start {
-            flex: 1;
             background-color: #3b6693;
             color: #f0f5fa;
             border: none;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
         }
-    
         .btn-start:hover { background-color: #4c7ba9; }
     </style>
 </head>
@@ -316,12 +320,10 @@
                 </div>
             </div>
 
-            <!-- Wrapper for Board Canvas & SVG Drawing Layer -->
             <div class="board-wrapper" id="board-wrapper">
                 <div id="board"></div>
                 <svg id="board-svg">
                     <defs>
-                        <!-- Black Arrow Marker -->
                         <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
                             <polygon points="0 0, 6 3, 0 6" fill="rgba(126, 65, 225, 0.8)" />
                         </marker>
@@ -379,6 +381,7 @@
 
         // Visual & Mouse Tracking State
         var lastMove = null;
+        var selectedSquare = null;
         var premoveQueue = []; 
         var arrows = []; 
         var isRightDragging = false;
@@ -388,11 +391,15 @@
         // Highlight Management
         // -------------------------------------------------------------
         function updateHighlights() {
-            $('#board .square-55d63').removeClass('highlight-last-move highlight-premove-dark');
+            $('#board .square-55d63').removeClass('highlight-last-move highlight-premove-dark highlight-selected');
 
             if (lastMove) {
                 $('#board .square-' + lastMove.from).addClass('highlight-last-move');
                 $('#board .square-' + lastMove.to).addClass('highlight-last-move');
+            }
+
+            if (selectedSquare) {
+                $('#board .square-' + selectedSquare).addClass('highlight-selected');
             }
 
             premoveQueue.forEach(function(pm) {
@@ -413,7 +420,7 @@
         }
 
         // -------------------------------------------------------------
-        // Coordinates & Drawing (Black Arrows)
+        // Coordinates & Drawing (Arrows)
         // -------------------------------------------------------------
         function getSquareFromCoords(x, y) {
             var boardOffset = $('#board').offset();
@@ -487,7 +494,7 @@
             line.setAttribute('x2', sx2);
             line.setAttribute('y2', sy2);
             line.setAttribute('stroke', 'rgba(126, 65, 225, 0.8)');
-            line.setAttribute('stroke-width', '10');
+            line.setAttribute('stroke-width', '8');
             line.setAttribute('stroke-linecap', 'round');
             line.setAttribute('marker-end', 'url(#arrowhead)');
 
@@ -495,7 +502,7 @@
         }
 
         // -------------------------------------------------------------
-        // Capture Phase Event Interceptors
+        // Right-Click Event Handling
         // -------------------------------------------------------------
         var boardWrapperEl = document.getElementById('board-wrapper');
 
@@ -509,7 +516,6 @@
             if (e.button === 2) { 
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation();
 
                 var sq = getSquareFromCoords(e.pageX, e.pageY);
                 if (sq) {
@@ -587,18 +593,10 @@
         }
 
         // -------------------------------------------------------------
-        // Chessboard Drag & Drop + Premove Execution
+        // Move Execution & Interaction Logic (Drag & Click-to-Move)
         // -------------------------------------------------------------
-        function onDragStart (source, piece, position, orientation) {
-            if (game.game_over() || isResigned) return false;
-
-            var pieceColor = piece.charAt(0) === 'w' ? 'white' : 'black';
-            if (pieceColor !== userColor) return false;
-
-            return true;
-        }
-
         function submitUserMove(moveObj) {
+            selectedSquare = null;
             isWaitingForBot = true;
             lastMove = { from: moveObj.from, to: moveObj.to };
             updateMoveHistory();
@@ -630,7 +628,6 @@
                             $('#bot-speech').text("Game over! Result: " + data.result);
                         } else {
                             $('#bot-speech').text("Your turn. Make your move!");
-                            
                             processNextPremove();
                         }
                     }
@@ -651,7 +648,68 @@
                 clearPremove();
             }
         }
-    
+
+        // Click-to-Move Handler
+        $('#board').on('click', '.square-55d63', function () {
+            if (game.game_over() || isResigned) return;
+
+            var square = $(this).attr('data-square');
+            if (!square) return;
+
+            var isUserTurn = (game.turn() === userColor.charAt(0));
+            var pieceOnSquare = game.get(square);
+            var isOwnPiece = pieceOnSquare && ((pieceOnSquare.color === 'w' && userColor === 'white') || (pieceOnSquare.color === 'b' && userColor === 'black'));
+
+            if (selectedSquare) {
+                if (selectedSquare === square) {
+                    selectedSquare = null;
+                    updateHighlights();
+                    return;
+                }
+
+                if (isOwnPiece) {
+                    selectedSquare = square;
+                    updateHighlights();
+                    return;
+                }
+
+                var from = selectedSquare;
+                var to = square;
+
+                selectedSquare = null;
+
+                if (!isUserTurn || isWaitingForBot || premoveQueue.length > 0) {
+                    premoveQueue.push({ from: from, to: to });
+                    updateHighlights();
+                    return;
+                }
+
+                var move = game.move({ from: from, to: to, promotion: 'q' });
+                if (move !== null) {
+                    board.position(game.fen());
+                    submitUserMove(move);
+                } else {
+                    updateHighlights();
+                }
+            } else {
+                if (isOwnPiece) {
+                    selectedSquare = square;
+                    updateHighlights();
+                }
+            }
+        });
+
+        function onDragStart (source, piece, position, orientation) {
+            if (game.game_over() || isResigned) return false;
+
+            var pieceColor = piece.charAt(0) === 'w' ? 'white' : 'black';
+            if (pieceColor !== userColor) return false;
+
+            selectedSquare = source;
+            updateHighlights();
+            return true;
+        }
+
         function onDrop (source, target) {
             clearRightClickMarkings();
 
@@ -660,13 +718,18 @@
             if (!isUserTurn || isWaitingForBot || premoveQueue.length > 0) {
                 if (source !== target) {
                     premoveQueue.push({ from: source, to: target });
+                    selectedSquare = null;
                     updateHighlights();
                 }
                 return 'snapback';
             }
 
             var move = game.move({ from: source, to: target, promotion: 'q' });
-            if (move === null) return 'snapback';
+            if (move === null) {
+                selectedSquare = null;
+                updateHighlights();
+                return 'snapback';
+            }
 
             submitUserMove(move);
         }
@@ -719,6 +782,7 @@
             isResigned = false;
             isWaitingForBot = false;
             lastMove = null;
+            selectedSquare = null;
             clearPremove();
             clearRightClickMarkings();
             updateProfiles(color);
@@ -758,6 +822,7 @@
             }
     
             isResigned = true;
+            selectedSquare = null;
             clearPremove();
             var result = (userColor === 'white') ? '0-1' : '1-0';
             game.header('Result', result);
