@@ -771,19 +771,22 @@
     
         function updateProfiles(color) {
             var pranavImg = '<img src="/static/pranav.png" alt="Pranav" />';
+            
             if (color === 'black') {
-                $('#top-avatar').html('U');
-                $('#top-name').text('You');
-                $('#top-rating').text('(Player)');
-    
-                $('#bottom-avatar').html(pranavImg);
-                $('#bottom-name').text('Pranav');
-                $('#bottom-rating').text('(2050)');
-            } else {
+                // You are Black (bottom), Pranav is White (top)
                 $('#top-avatar').html(pranavImg);
                 $('#top-name').text('Pranav');
                 $('#top-rating').text('(2050)');
-    
+
+                $('#bottom-avatar').html('U');
+                $('#bottom-name').text('You');
+                $('#bottom-rating').text('(Player)');
+            } else {
+                // You are White (bottom), Pranav is Black (top)
+                $('#top-avatar').html(pranavImg);
+                $('#top-name').text('Pranav');
+                $('#top-rating').text('(2050)');
+
                 $('#bottom-avatar').html('U');
                 $('#bottom-name').text('You');
                 $('#bottom-rating').text('(Player)');
