@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Play vs Pranav</title>
     <!-- Chessboard.js & Dependencies -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
@@ -379,7 +379,9 @@
         var isResigned = false;
         var isWaitingForBot = false;
 
-        // Visual & Mouse Tracking State
+        var isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        // Visual State
         var lastMove = null;
         var selectedSquare = null;
         var premoveQueue = []; 
@@ -420,7 +422,7 @@
         }
 
         // -------------------------------------------------------------
-        // Coordinates & Drawing (Arrows)
+        // Coordinates & Drawing (Arrows - Desktop Only)
         // -------------------------------------------------------------
         function getSquareFromCoords(x, y) {
             var boardOffset = $('#board').offset();
@@ -471,6 +473,8 @@
             var svgGroup = $('#permanent-arrows');
             svgGroup.empty();
 
+            if (isMobile) return; // Disable rendering on mobile devices
+
             arrows.forEach(function(arr) {
                 var start = getSquareCenter(arr.from);
                 var end = getSquareCenter(arr.to);
@@ -479,6 +483,7 @@
         }
 
         function drawArrowOnGroup(group, x1, y1, x2, y2) {
+            if (isMobile) return;
             var dx = x2 - x1;
             var dy = y2 - y1;
             var len = Math.hypot(dx, dy);
@@ -502,67 +507,69 @@
         }
 
         // -------------------------------------------------------------
-        // Right-Click Event Handling
+        // Mouse Right-Click Arrows (Explicitly Desktop Only)
         // -------------------------------------------------------------
-        var boardWrapperEl = document.getElementById('board-wrapper');
+        if (!isMobile) {
+            var boardWrapperEl = document.getElementById('board-wrapper');
 
-        boardWrapperEl.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }, true);
-
-        boardWrapperEl.addEventListener('mousedown', function(e) {
-            if (e.button === 2) { 
+            boardWrapperEl.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                return false;
+            }, true);
 
-                var sq = getSquareFromCoords(e.pageX, e.pageY);
-                if (sq) {
-                    isRightDragging = true;
-                    rightStartSquare = sq;
-                }
-            } else if (e.button === 0) { 
-                clearRightClickMarkings();
-                if (premoveQueue.length > 0) clearPremove();
-            }
-        }, true);
+            boardWrapperEl.addEventListener('mousedown', function(e) {
+                if (e.button === 2) { 
+                    e.preventDefault();
+                    e.stopPropagation();
 
-        document.addEventListener('mousemove', function(e) {
-            if (!isRightDragging || !rightStartSquare) return;
-
-            var boardOffset = $('#board').offset();
-            var curX = e.pageX - boardOffset.left;
-            var curY = e.pageY - boardOffset.top;
-            var start = getSquareCenter(rightStartSquare);
-
-            var tempGroup = $('#temp-arrow');
-            tempGroup.empty();
-            drawArrowOnGroup(tempGroup, start.x, start.y, curX, curY);
-        });
-
-        document.addEventListener('mouseup', function(e) {
-            if (e.button === 2 && isRightDragging) {
-                isRightDragging = false;
-                $('#temp-arrow').empty();
-
-                var endSq = getSquareFromCoords(e.pageX, e.pageY);
-                if (rightStartSquare && endSq) {
-                    if (rightStartSquare === endSq) {
-                        $('#board .square-' + endSq).toggleClass('highlight-right-click');
-                    } else {
-                        var existingIndex = arrows.findIndex(a => a.from === rightStartSquare && a.to === endSq);
-                        if (existingIndex !== -1) {
-                            arrows.splice(existingIndex, 1);
-                        } else {
-                            arrows.push({ from: rightStartSquare, to: endSq });
-                        }
-                        renderArrows();
+                    var sq = getSquareFromCoords(e.pageX, e.pageY);
+                    if (sq) {
+                        isRightDragging = true;
+                        rightStartSquare = sq;
                     }
+                } else if (e.button === 0) { 
+                    clearRightClickMarkings();
+                    if (premoveQueue.length > 0) clearPremove();
                 }
-                rightStartSquare = null;
-            }
-        });
+            }, true);
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isRightDragging || !rightStartSquare) return;
+
+                var boardOffset = $('#board').offset();
+                var curX = e.pageX - boardOffset.left;
+                var curY = e.pageY - boardOffset.top;
+                var start = getSquareCenter(rightStartSquare);
+
+                var tempGroup = $('#temp-arrow');
+                tempGroup.empty();
+                drawArrowOnGroup(tempGroup, start.x, start.y, curX, curY);
+            });
+
+            document.addEventListener('mouseup', function(e) {
+                if (e.button === 2 && isRightDragging) {
+                    isRightDragging = false;
+                    $('#temp-arrow').empty();
+
+                    var endSq = getSquareFromCoords(e.pageX, e.pageY);
+                    if (rightStartSquare && endSq) {
+                        if (rightStartSquare === endSq) {
+                            $('#board .square-55d63').filter('.square-' + endSq).toggleClass('highlight-right-click');
+                        } else {
+                            var existingIndex = arrows.findIndex(a => a.from === rightStartSquare && a.to === endSq);
+                            if (existingIndex !== -1) {
+                                arrows.splice(existingIndex, 1);
+                            } else {
+                                arrows.push({ from: rightStartSquare, to: endSq });
+                            }
+                            renderArrows();
+                        }
+                    }
+                    rightStartSquare = null;
+                }
+            });
+        }
 
         // -------------------------------------------------------------
         // Move History Display
@@ -593,7 +600,7 @@
         }
 
         // -------------------------------------------------------------
-        // Move Execution & Interaction Logic (Drag & Click-to-Move)
+        // Move Execution & Interaction Logic
         // -------------------------------------------------------------
         function submitUserMove(moveObj) {
             selectedSquare = null;
@@ -649,12 +656,9 @@
             }
         }
 
-        // Click-to-Move Handler
-        $('#board').on('click', '.square-55d63', function () {
-            if (game.game_over() || isResigned) return;
-
-            var square = $(this).attr('data-square');
-            if (!square) return;
+        // Click / Touch Handler for Piece Selection and Destination
+        function handleSquareSelection(square) {
+            if (game.game_over() || isResigned || !square) return;
 
             var isUserTurn = (game.turn() === userColor.charAt(0));
             var pieceOnSquare = game.get(square);
@@ -697,6 +701,15 @@
                     updateHighlights();
                 }
             }
+        }
+
+        // Unified Click & Touch Binding
+        $('#board').on('click touchend', '.square-55d63', function (e) {
+            if (e.type === 'touchend') {
+                e.preventDefault(); // Stop simulated mouse click duplicate
+            }
+            var square = $(this).attr('data-square');
+            handleSquareSelection(square);
         });
 
         function onDragStart (source, piece, position, orientation) {
@@ -740,7 +753,7 @@
         }
     
         var config = {
-            draggable: true,
+            draggable: !isMobile, // Disable dragging on phones to enforce click/tap moves
             position: 'start',
             onDragStart: onDragStart,
             onDrop: onDrop,
