@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Play vs Pranav</title>
+    <!-- Chessboard.js & Dependencies -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #313e57;
+            color: #9cb1c9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    
+        .app-container {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+    
+        /* Board Column */
+        .board-column {
+            display: flex;
+            flex-direction: column;
+            width: 720px;
+        }
+    
+        .player-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+        }
+    
+        .bar-avatar {
+            width: 56px;
+            height: 56px;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: #e6f0fa;
+        }
+    
+        .bar-avatar img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            background: transparent;
+        }
+    
+        .player-name {
+            color: #e6f0fa;
+            font-weight: 700;
+            font-size: 22px;
+        }
+    
+        .player-rating {
+            color: #647d9a;
+            font-size: 18px;
+            margin-left: 6px;
+        }
+    
+        /* Board Wrapper & Overlay for SVG Drawings */
+        .board-wrapper {
+            position: relative;
+            width: 720px;
+            height: 720px;
+        }
+    
+        #board {
+            width: 720px;
+            height: 720px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+    
+        /* Prevent default browser dragging on piece images */
+        #board img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+    
+        #board-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 720px;
+            height: 720px;
+            pointer-events: none;
+            z-index: 100;
+        }
+    
+        /* Board Square Colors - Desaturated Blue */
+        .white-1e1d7 {
+            background-color: #d8e2ec !important;
+            color: #3ea1b9 !important;
+        }
+        .black-3c85d {
+            background-color: #3ea1b9 !important;
+            color: #d8e2ec !important;
+        }
+    
+        /* High-Specificity Highlights Override */
+        #board .square-55d63.highlight-last-move {
+            background-color: rgb(192, 192, 192) !important;
+            box-shadow: inset 0 0 2px 2px rgba(172, 172, 172);
+        }
+    
+        #board .square-55d63.highlight-right-click {
+            background-color: rgba(126, 65, 225, 0.65) !important;
+        }
+    
+        #board .square-55d63.highlight-premove-dark {
+            background-color: rgba(126, 65, 225, 0.65) !important;
+            box-shadow: inset 0 0 2px 2px rgba(95, 49, 170, 0.65);
+        }
+    
+        /* Right Sidebar Panel */
+        .side-panel {
+            width: 440px;
+            height: 820px;
+            background-color: #1a2230;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            border: 1px solid #283346;
+        }
+    
+        .panel-header {
+            padding: 18px 20px;
+            background-color: #131924;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-weight: 600;
+            color: #e6f0fa;
+            font-size: 18px;
+            border-bottom: 1px solid #253144;
+        }
+    
+        .bot-dialogue-area {
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background-color: #212c3d;
+            margin: 20px;
+            border-radius: 8px;
+            border: 1px solid #2d3b52;
+        }
+    
+        .bot-panel-avatar {
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+            background: transparent;
+        }
+    
+        .bot-panel-avatar img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            background: transparent;
+        }
+    
+        .speech-bubble {
+            background-color: #f0f5fa;
+            color: #121721;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            margin-left: 6px;
+        }
+    
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 8px solid #f0f5fa;
+        }
+    
+        .move-history-area {
+            flex-grow: 1;
+            padding: 18px;
+            font-size: 16px;
+            color: #c0d1e5;
+            font-family: monospace;
+            overflow-y: auto;
+            background-color: #131924;
+            margin: 0 20px 20px 20px;
+            border-radius: 6px;
+            border: 1px solid #253144;
+            line-height: 1.7;
+        }
+    
+        .move-line {
+            display: flex;
+            gap: 16px;
+        }
+    
+        .move-number {
+            color: #536b88;
+            width: 32px;
+        }
+    
+        .move-white, .move-black {
+            width: 80px;
+        }
+    
+        .panel-footer {
+            padding: 20px;
+            background-color: #131924;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid #253144;
+        }
+    
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+    
+        .btn-resign, .btn-pgn {
+            flex: 1;
+            background-color: #232d3f;
+            border: 1px solid #324158;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+    
+        .btn-resign { color: #e55353; }
+        .btn-resign:hover { 
+            background-color: #cc3333; 
+            color: #ffffff;
+            border-color: #cc3333;
+        }
+    
+        .btn-pgn { color: #9cb1c9; }
+        .btn-pgn:hover {
+            background-color: #324158;
+            color: #ffffff;
+        }
+    
+        .color-btns {
+            display: flex;
+            gap: 10px;
+        }
+    
+        .btn-start {
+            flex: 1;
+            background-color: #3b6693;
+            color: #f0f5fa;
+            border: none;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+    
+        .btn-start:hover { background-color: #4c7ba9; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Left: Chessboard Column -->
+        <div class="board-column">
+            <div class="player-bar" id="top-bar">
+                <div class="bar-avatar" id="top-avatar"><img src="/static/pranav.png" alt="Pranav" /></div>
+                <div>
+                    <span class="player-name" id="top-name">Pranav</span>
+                    <span class="player-rating" id="top-rating">(2050)</span>
+                </div>
+            </div>
+
+            <!-- Wrapper for Board Canvas & SVG Drawing Layer -->
+            <div class="board-wrapper" id="board-wrapper">
+                <div id="board"></div>
+                <svg id="board-svg">
+                    <defs>
+                        <!-- Black Arrow Marker -->
+                        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+                            <polygon points="0 0, 6 3, 0 6" fill="rgba(126, 65, 225, 0.8)" />
+                        </marker>
+                    </defs>
+                    <g id="permanent-arrows"></g>
+                    <g id="temp-arrow"></g>
+                </svg>
+            </div>
+
+            <div class="player-bar" id="bottom-bar">
+                <div class="bar-avatar" id="bottom-avatar">U</div>
+                <div>
+                    <span class="player-name" id="bottom-name">You</span>
+                    <span class="player-rating" id="bottom-rating">(Player)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Sidebar Panel -->
+        <div class="side-panel">
+            <div class="panel-header">🤖 Play Bots</div>
+
+            <div class="bot-dialogue-area">
+                <div class="bot-panel-avatar">
+                    <img src="/static/pranav.png" alt="Pranav" />
+                </div>
+                <div class="speech-bubble" id="bot-speech">
+                    Ready for a positional battle? Select your side below!
+                </div>
+            </div>
+
+            <div class="move-history-area" id="status-area">
+                Starting Position
+            </div>
+
+            <div class="panel-footer">
+                <div class="action-row">
+                    <button class="btn-resign" onclick="resignGame()">🏳️ Resign</button>
+                    <button class="btn-pgn" onclick="downloadPGN()">📥 PGN</button>
+                </div>
+                <div class="color-btns">
+                    <button class="btn-start" onclick="initGame('white')">Play as White</button>
+                    <button class="btn-start" style="background-color: #363431;" onclick="initGame('black')">Play as Black</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var board = null;
+        var game = new Chess();
+        var userColor = 'white';
+        var isResigned = false;
+        var isWaitingForBot = false;
+
+        // Visual & Mouse Tracking State
+        var lastMove = null;
+        var premoveQueue = []; 
+        var arrows = []; 
+        var isRightDragging = false;
+        var rightStartSquare = null;
+
+        // -------------------------------------------------------------
+        // Highlight Management
+        // -------------------------------------------------------------
+        function updateHighlights() {
+            $('#board .square-55d63').removeClass('highlight-last-move highlight-premove-dark');
+
+            if (lastMove) {
+                $('#board .square-' + lastMove.from).addClass('highlight-last-move');
+                $('#board .square-' + lastMove.to).addClass('highlight-last-move');
+            }
+
+            premoveQueue.forEach(function(pm) {
+                $('#board .square-' + pm.from).addClass('highlight-premove-dark');
+                $('#board .square-' + pm.to).addClass('highlight-premove-dark');
+            });
+        }
+
+        function clearPremove() {
+            premoveQueue = [];
+            updateHighlights();
+        }
+
+        function clearRightClickMarkings() {
+            $('#board .square-55d63').removeClass('highlight-right-click');
+            arrows = [];
+            renderArrows();
+        }
+
+        // -------------------------------------------------------------
+        // Coordinates & Drawing (Black Arrows)
+        // -------------------------------------------------------------
+        function getSquareFromCoords(x, y) {
+            var boardOffset = $('#board').offset();
+            var relX = x - boardOffset.left;
+            var relY = y - boardOffset.top;
+            var size = $('#board').width();
+            var sqSize = size / 8;
+
+            if (relX < 0 || relX >= size || relY < 0 || relY >= size) return null;
+
+            var fileIdx = Math.floor(relX / sqSize);
+            var rankIdx = Math.floor(relY / sqSize);
+
+            var files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            var ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+            if (userColor === 'black') {
+                files.reverse();
+                ranks.reverse();
+            }
+
+            return files[fileIdx] + ranks[rankIdx];
+        }
+
+        function getSquareCenter(square) {
+            var file = square.charAt(0);
+            var rank = square.charAt(1);
+
+            var files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            var ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+            if (userColor === 'black') {
+                files.reverse();
+                ranks.reverse();
+            }
+
+            var fileIdx = files.indexOf(file);
+            var rankIdx = ranks.indexOf(rank);
+
+            var sqSize = $('#board').width() / 8;
+            return {
+                x: (fileIdx + 0.5) * sqSize,
+                y: (rankIdx + 0.5) * sqSize
+            };
+        }
+
+        function renderArrows() {
+            var svgGroup = $('#permanent-arrows');
+            svgGroup.empty();
+
+            arrows.forEach(function(arr) {
+                var start = getSquareCenter(arr.from);
+                var end = getSquareCenter(arr.to);
+                drawArrowOnGroup(svgGroup, start.x, start.y, end.x, end.y);
+            });
+        }
+
+        function drawArrowOnGroup(group, x1, y1, x2, y2) {
+            var dx = x2 - x1;
+            var dy = y2 - y1;
+            var len = Math.hypot(dx, dy);
+            if (len === 0) return;
+
+            var offset = 18;
+            var sx2 = x2 - (dx / len) * offset;
+            var sy2 = y2 - (dy / len) * offset;
+
+            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', sx2);
+            line.setAttribute('y2', sy2);
+            line.setAttribute('stroke', 'rgba(126, 65, 225, 0.8)');
+            line.setAttribute('stroke-width', '10');
+            line.setAttribute('stroke-linecap', 'round');
+            line.setAttribute('marker-end', 'url(#arrowhead)');
+
+            group.append(line);
+        }
+
+        // -------------------------------------------------------------
+        // Capture Phase Event Interceptors
+        // -------------------------------------------------------------
+        var boardWrapperEl = document.getElementById('board-wrapper');
+
+        boardWrapperEl.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }, true);
+
+        boardWrapperEl.addEventListener('mousedown', function(e) {
+            if (e.button === 2) { 
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                var sq = getSquareFromCoords(e.pageX, e.pageY);
+                if (sq) {
+                    isRightDragging = true;
+                    rightStartSquare = sq;
+                }
+            } else if (e.button === 0) { 
+                clearRightClickMarkings();
+                if (premoveQueue.length > 0) clearPremove();
+            }
+        }, true);
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isRightDragging || !rightStartSquare) return;
+
+            var boardOffset = $('#board').offset();
+            var curX = e.pageX - boardOffset.left;
+            var curY = e.pageY - boardOffset.top;
+            var start = getSquareCenter(rightStartSquare);
+
+            var tempGroup = $('#temp-arrow');
+            tempGroup.empty();
+            drawArrowOnGroup(tempGroup, start.x, start.y, curX, curY);
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (e.button === 2 && isRightDragging) {
+                isRightDragging = false;
+                $('#temp-arrow').empty();
+
+                var endSq = getSquareFromCoords(e.pageX, e.pageY);
+                if (rightStartSquare && endSq) {
+                    if (rightStartSquare === endSq) {
+                        $('#board .square-' + endSq).toggleClass('highlight-right-click');
+                    } else {
+                        var existingIndex = arrows.findIndex(a => a.from === rightStartSquare && a.to === endSq);
+                        if (existingIndex !== -1) {
+                            arrows.splice(existingIndex, 1);
+                        } else {
+                            arrows.push({ from: rightStartSquare, to: endSq });
+                        }
+                        renderArrows();
+                    }
+                }
+                rightStartSquare = null;
+            }
+        });
+
+        // -------------------------------------------------------------
+        // Move History Display
+        // -------------------------------------------------------------
+        function updateMoveHistory() {
+            var history = game.history();
+            if (history.length === 0) {
+                $('#status-area').html('Starting Position');
+                return;
+            }
+    
+            var html = '';
+            for (var i = 0; i < history.length; i += 2) {
+                var moveNum = (i / 2) + 1;
+                var whiteMove = history[i] || '';
+                var blackMove = history[i + 1] || '';
+    
+                html += '<div class="move-line">' +
+                            '<span class="move-number">' + moveNum + '.</span>' +
+                            '<span class="move-white">' + whiteMove + '</span>' +
+                            '<span class="move-black">' + blackMove + '</span>' +
+                        '</div>';
+            }
+    
+            var area = $('#status-area');
+            area.html(html);
+            area.scrollTop(area[0].scrollHeight);
+        }
+
+        // -------------------------------------------------------------
+        // Chessboard Drag & Drop + Premove Execution
+        // -------------------------------------------------------------
+        function onDragStart (source, piece, position, orientation) {
+            if (game.game_over() || isResigned) return false;
+
+            var pieceColor = piece.charAt(0) === 'w' ? 'white' : 'black';
+            if (pieceColor !== userColor) return false;
+
+            return true;
+        }
+
+        function submitUserMove(moveObj) {
+            isWaitingForBot = true;
+            lastMove = { from: moveObj.from, to: moveObj.to };
+            updateMoveHistory();
+            updateHighlights();
+            $('#bot-speech').text("Analyzing structural targets...");
+
+            $.ajax({
+                url: '/make_move',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ move: moveObj.from + moveObj.to }),
+                success: function (data) {
+                    isWaitingForBot = false;
+                    if (data.status === 'ok') {
+                        if (data.bot_move) {
+                            var botFrom = data.bot_move.substring(0, 2);
+                            var botTo = data.bot_move.substring(2, 4);
+
+                            game.move({ from: botFrom, to: botTo, promotion: 'q' });
+                            lastMove = { from: botFrom, to: botTo };
+                        }
+
+                        board.position(game.fen());
+                        updateMoveHistory();
+                        updateHighlights();
+
+                        if (data.game_over) {
+                            clearPremove();
+                            $('#bot-speech').text("Game over! Result: " + data.result);
+                        } else {
+                            $('#bot-speech').text("Your turn. Make your move!");
+                            
+                            processNextPremove();
+                        }
+                    }
+                }
+            });
+        }
+
+        function processNextPremove() {
+            if (premoveQueue.length === 0) return;
+
+            var nextMove = premoveQueue.shift();
+            var validMove = game.move({ from: nextMove.from, to: nextMove.to, promotion: 'q' });
+
+            if (validMove !== null) {
+                board.position(game.fen());
+                submitUserMove(validMove);
+            } else {
+                clearPremove();
+            }
+        }
+    
+        function onDrop (source, target) {
+            clearRightClickMarkings();
+
+            var isUserTurn = (game.turn() === userColor.charAt(0));
+
+            if (!isUserTurn || isWaitingForBot || premoveQueue.length > 0) {
+                if (source !== target) {
+                    premoveQueue.push({ from: source, to: target });
+                    updateHighlights();
+                }
+                return 'snapback';
+            }
+
+            var move = game.move({ from: source, to: target, promotion: 'q' });
+            if (move === null) return 'snapback';
+
+            submitUserMove(move);
+        }
+    
+        function onSnapEnd () { 
+            board.position(game.fen());
+            updateHighlights();
+        }
+    
+        var config = {
+            draggable: true,
+            position: 'start',
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onSnapEnd: onSnapEnd,
+            pieceTheme: 'https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/merida/{piece}.svg'
+        };
+    
+        board = Chessboard('board', config);
+
+        $(window).resize(function() {
+            board.resize();
+            renderArrows();
+            updateHighlights();
+        });
+    
+        function updateProfiles(color) {
+            var pranavImg = '<img src="/static/pranav.png" alt="Pranav" />';
+            if (color === 'black') {
+                $('#top-avatar').html('U');
+                $('#top-name').text('You');
+                $('#top-rating').text('(Player)');
+    
+                $('#bottom-avatar').html(pranavImg);
+                $('#bottom-name').text('Pranav');
+                $('#bottom-rating').text('(2050)');
+            } else {
+                $('#top-avatar').html(pranavImg);
+                $('#top-name').text('Pranav');
+                $('#top-rating').text('(2050)');
+    
+                $('#bottom-avatar').html('U');
+                $('#bottom-name').text('You');
+                $('#bottom-rating').text('(Player)');
+            }
+        }
+    
+        function initGame(color) {
+            userColor = color;
+            isResigned = false;
+            isWaitingForBot = false;
+            lastMove = null;
+            clearPremove();
+            clearRightClickMarkings();
+            updateProfiles(color);
+    
+            $.ajax({
+                url: '/start_game',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ color: color }),
+                success: function (data) {
+                    game.reset();
+                    board.orientation(color);
+                    
+                    if (data.bot_move) {
+                        var botFrom = data.bot_move.substring(0, 2);
+                        var botTo = data.bot_move.substring(2, 4);
+
+                        game.move({ from: botFrom, to: botTo, promotion: 'q' });
+                        lastMove = { from: botFrom, to: botTo };
+
+                        $('#bot-speech').text("I opened with " + data.bot_move + ". Your turn!");
+                    } else {
+                        $('#bot-speech').text("Good luck! You have the white pieces.");
+                    }
+    
+                    board.position(game.fen());
+                    updateMoveHistory();
+                    updateHighlights();
+                }
+            });
+        }
+    
+        function resignGame() {
+            if (game.game_over() || isResigned) {
+                $('#bot-speech').text("The game is already finished!");
+                return;
+            }
+    
+            isResigned = true;
+            clearPremove();
+            var result = (userColor === 'white') ? '0-1' : '1-0';
+            game.header('Result', result);
+            game.header('Termination', 'Normal - Resignation');
+    
+            $('#bot-speech').text("You resigned. You can now download the PGN or select a side to play again.");
+        }
+    
+        function downloadPGN() {
+            var pgnData = game.pgn();
+            if (!pgnData || pgnData.trim() === "") {
+                var whitePlayer = (userColor === 'white') ? 'You' : 'Pranav';
+                var blackPlayer = (userColor === 'white') ? 'Pranav' : 'You';
+                pgnData = '[Event "Casual Game"]\n[Site "Localhost"]\n[White "' + whitePlayer + '"]\n[Black "' + blackPlayer + '"]\n[Result "*"]\n\n*';
+            }
+            var blob = new Blob([pgnData], { type: 'text/plain;charset=utf-8' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'pranav_bot_game.pgn';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    
+        initGame('white');
+    </script>
+</body>
+</html>
