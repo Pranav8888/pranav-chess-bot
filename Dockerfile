@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy remaining project files
 COPY . .
 
-# Run application with Gunicorn
-CMD ["gunicorn", "app:app"]
+# Run application binding to Render's assigned PORT variable
+CMD exec gunicorn --bind 0.0.0.0:$PORT app:app
