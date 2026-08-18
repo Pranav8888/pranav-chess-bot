@@ -61,20 +61,20 @@ def build_book_from_split_pgns(
 
 @dataclass
 class StyleConfig:
-    base_depth: int = 8
+    base_depth: int = 6
     shallow_depth: int = 4
-    conversion_depth: int = 10
+    conversion_depth: int = 7
     multipv: int = 5
 
     base_candidate_window_cp: float = 40.0
-    window_volatility_scale: float = 0.15
-    max_candidate_window_cp: float = 90.0
+    window_volatility_scale: float = 0.18
+    max_candidate_window_cp: float = 55.0
 
-    conversion_threshold_cp: float = 120.0
+    conversion_threshold_cp: float = 110.0
 
-    miss_base_prob: float = 0.05
-    miss_complexity_scale_cp: float = 150.0
-    miss_prob_cap: float = 0.80
+    miss_base_prob: float = 0.03
+    miss_complexity_scale_cp: float = 145.0
+    miss_prob_cap: float = 0.50
 
     style_move_horizon: int = 30  # ply count over which opening-style bonuses decay to 0
 

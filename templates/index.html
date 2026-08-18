@@ -13,7 +13,7 @@
     <style>
         * { box-sizing: border-box; }
         body {
-            background-color: #313e57;
+            background-color: #89a6b6;
             color: #9cb1c9;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
@@ -49,7 +49,7 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: 650px;
+            max-width: 725px;
         }
     
         .player-bar {
@@ -69,7 +69,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 20px;
-            color: #e6f0fa;
+            color: #000000;
         }
     
         .bar-avatar img { 
@@ -80,15 +80,17 @@
         }
     
         .player-name {
-            color: #e6f0fa;
+            color: #050505;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 24px;
+            font-family:'Arial';
         }
     
         .player-rating {
-            color: #647d9a;
+            color: #4d4d4d;
             font-size: 16px;
             margin-left: 6px;
+            font-weight: 500;
         }
     
         /* Board Wrapper & Responsive Square Ratio */
@@ -102,7 +104,7 @@
         #board {
             width: 100%;
             height: 100%;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 12px 32px rgb(206, 56, 56);
             border-radius: 4px;
             overflow: hidden;
         }
@@ -126,12 +128,12 @@
     
         /* Square Styling & Highlighting */
         .white-1e1d7 {
-            background-color: #d8e2ec !important;
-            color: #3ea1b9 !important;
+            background-color: #d5e0e5 !important;
+            color: #7ea0b4 !important;
         }
         .black-3c85d {
-            background-color: #3ea1b9 !important;
-            color: #d8e2ec !important;
+            background-color: #7ea0b4 !important;
+            color: #d5e0e5 !important;
         }
     
         #board .square-55d63.highlight-last-move {
@@ -140,17 +142,17 @@
         }
 
         #board .square-55d63.highlight-selected {
-            background-color: rgba(255, 235, 59, 0.65) !important;
-            box-shadow: inset 0 0 2px 2px rgba(212, 190, 0, 0.8);
+            background-color: rgba(100, 100, 100, 0.65) !important;
+            box-shadow: inset 0 0 2px 2px rgba(100, 100, 100, 0.65);
         }
     
         #board .square-55d63.highlight-right-click {
-            background-color: rgba(126, 65, 225, 0.65) !important;
+            background-color: rgb(50, 97, 126) !important;
         }
     
         #board .square-55d63.highlight-premove-dark {
-            background-color: rgba(126, 65, 225, 0.65) !important;
-            box-shadow: inset 0 0 2px 2px rgba(95, 49, 170, 0.65);
+            background-color: rgb(50, 97, 126) !important;
+            box-shadow: inset 0 0 2px 2px rgb(50, 97, 126);
         }
     
         /* Right Sidebar Panel */
@@ -169,8 +171,8 @@
 
         @media (min-width: 901px) {
             .side-panel {
-                width: 380px;
-                height: 720px;
+                width: 420px;
+                height: 800px;
             }
         }
     
@@ -325,7 +327,7 @@
                 <svg id="board-svg">
                     <defs>
                         <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
-                            <polygon points="0 0, 6 3, 0 6" fill="rgba(126, 65, 225, 0.8)" />
+                            <polygon points="0 0, 6 3, 0 6" fill="rgba(31, 65, 87, 0.8)" />
                         </marker>
                     </defs>
                     <g id="permanent-arrows"></g>
@@ -498,7 +500,7 @@
             line.setAttribute('y1', y1);
             line.setAttribute('x2', sx2);
             line.setAttribute('y2', sy2);
-            line.setAttribute('stroke', 'rgba(126, 65, 225, 0.8)');
+            line.setAttribute('stroke', 'rgba(31, 65, 87, 0.8)');
             line.setAttribute('stroke-width', '8');
             line.setAttribute('stroke-linecap', 'round');
             line.setAttribute('marker-end', 'url(#arrowhead)');
@@ -758,7 +760,9 @@
             onDragStart: onDragStart,
             onDrop: onDrop,
             onSnapEnd: onSnapEnd,
-            pieceTheme: 'https://raw.githubusercontent.com/lichess-org/lila/master/public/piece/merida/{piece}.svg'
+            pieceTheme: function(piece) {
+                return 'https://github.com/GiorgioMegrelli/chess.com-boards-and-pieces/blob/v2.x/pieces/glass/' + piece.toLowerCase() + '.png?raw=true'
+            }
         };
     
         board = Chessboard('board', config);
