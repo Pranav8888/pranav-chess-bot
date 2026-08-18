@@ -63,7 +63,7 @@ def build_book_from_split_pgns(
 class StyleConfig:
     base_depth: int = 6
     shallow_depth: int = 4
-    conversion_depth: int = 7
+    conversion_depth: int = 6
     multipv: int = 5
 
     base_candidate_window_cp: float = 40.0
